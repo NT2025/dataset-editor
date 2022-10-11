@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dataset-editor"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Kenta Fukuhara <kakikaku.fukuhara@gmail.com>"]
 

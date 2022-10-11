@@ -44,13 +44,19 @@ def add_numbering(subparsers:_SubParsersAction):
     （この際に`prefix`引数が設定してある場合は`[prefix]_xxxxxx.jpg`のように数字の前にテキストが挿入される。)
     また、リネーム情報を辞書に記録する。`dict={number:org}`のように
     全てのファイルがコピーされた後にリネーム情報を`numbering2org.json`として画像ディレクトリの親ディレクトリに保存する。
+    modeによってシンボリックリンクを作成するか、純粋にコピーするか選択する。
     '''
     parser:ArgumentParser = subparsers.add_parser(
         "numbering", description=description, epilog=epilog)
     parser.add_argument("img_dir", type=str)
-    parser.add_argument("-p", "--prefix", type=str, default="", help="numbering prefix")
-    parser.add_argument("-s", "--shuffle", action="store_true", help="shuffle flag")
-    parser.add_argument("-o", "--out", type=str, default=os.curdir, help="save directory")
+    parser.add_argument("out_dir", type=str)
+    parser.add_argument("-m", "--mode", choices=["absolute", "relative", "copy"], default="copy",
+                        help="choosing safe mode . default is '''copy'''. '''copy''' mean copying file. \
+                            '''absolute''' mean symlink that use absolute path. \
+                            '''relative''' mean symlink that use relative path")
+    parser.add_argument("-p", "--prefix", type=str, default="", 
+                        help="add prefix for filename. Example is [prefix]_00001.jpg. default is ''")
+    parser.add_argument("-s", "--shuffle", action="store_true", help="shuffle flag. default is False")
 
     def call(*args):
         _args = args[0]
