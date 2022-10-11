@@ -4,7 +4,7 @@ DESCRIPTION='''
 `numbering`:画像データを５桁の番号の名前に変更して新たに保存する関数。
 `repair`:ファイル名が変更されたファイル(numbering2org.json等)に基づいて、対象画像ファイルをオリジナルの名前として新たに保存するプログラム.
 `mkdir`:
-`
+`ext_latest`:データセット群からxmlファイルを一つディレクトリにコピーしてまとめる。
 '''
 
 
@@ -23,6 +23,7 @@ def main():
     add_numbering(subparsers)
     add_repair(subparsers)
     add_mkdir(subparsers)
+    add_extract_latest(subparsers)
 
     args = parser.parse_args()
     if hasattr(args, "handler"):
@@ -133,6 +134,35 @@ def add_mkdir(subparsers:_SubParsersAction):
         command += [os.path.abspath(_args.file_dir)]
         command += ["-n", str(_args.devide_number)]
         command += ["-o", os.path.abspath(_args.output)]
+        subprocess.run(command, cwd=f"{FILE_DIR}")
+    
+    parser.set_defaults(handler=call)
+
+
+def add_extract_latest(subparsers:_SubParsersAction):
+    description='''
+    <概要>
+    データセット群からxmlファイルを一つのディレクトリにコピーしてまとめる
+    '''
+    epilog='''
+    <詳細説明>-----------------------------------------------
+    以下のようなディレクトリ構造を持つデータセット群を対象に最新のxmlファイルを一つのディレクトリにまとめる。
+    [datasets/dataset_xxxxx_xxxxx/anns/latest].
+    コピー先はout_dirで指定されたディレクトリ上にannsというディレクトリを作成してソコにコピーを行う。
+    同名のファイルは上書きされる。
+    '''
+    parser:ArgumentParser = subparsers.add_parser(
+        "ext_latest", description=description, epilog=epilog)
+    parser.add_argument("datasets", type=str)
+    parser.add_argument("out_dir", type=str)
+
+    def call(*args):
+        _args = args[0]
+        command = []
+        command += [PYTHON_PATH] 
+        command += ["extract_latest.py"]
+        command += [os.path.abspath(_args.datasets)]
+        command += [os.path.abspath(_args.out_dir)]
         subprocess.run(command, cwd=f"{FILE_DIR}")
     
     parser.set_defaults(handler=call)
