@@ -65,9 +65,10 @@ def add_numbering(subparsers:_SubParsersAction):
         command += [PYTHON_PATH]
         command += ["numbering_filename.py"]
         command += [os.path.abspath(_args.img_dir)]
+        command += [os.path.abspath(_args.out_dir)]
         command += ["-p", _args.prefix]
         command += ["-s"] if _args.shuffle else []
-        command += ["-o", os.path.abspath(_args.out)]
+        command += ["-m", _args.mode]
         subprocess.run(command, cwd=f"{FILE_DIR}")
     
     parser.set_defaults(handler=call)
