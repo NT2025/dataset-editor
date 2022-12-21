@@ -5,7 +5,7 @@ DESCRIPTION='''
 EPILOG='''
 <詳細説明>-----------------------------------------------
 以下のようなディレクトリ構造を持つデータセット群を対象に最新のxmlファイルを一つのディレクトリにまとめる。
-[datasets/dataset_xxxxx_xxxxx/anns/latest].
+[datasets/dataset_xxxxx_xxxxx/anns/all].
 コピー先はout_dirで指定されたディレクトリ上にannsというディレクトリを作成してソコにコピーを行う。
 同名のファイルは上書きされる。
 '''
@@ -50,7 +50,7 @@ def main(dict_args):
         logging.error(f"{datasets_dir} does not have dirs")
         sys.exit(0)
 
-    # アノテーションディレクトリ`latest`からxmlをコピーを用いて抽出
+    # アノテーションディレクトリ`all`からxmlをコピーを用いて抽出
     for _dir in dataset_dirs:
         try:
             anns_dir = Path(glob.glob(f"{_dir}/ann*")[0]) # ann or anns
@@ -58,9 +58,9 @@ def main(dict_args):
             logging.info(f"{_dir} not have anns dir")
             continue
 
-        ann_dir = Path(f"{anns_dir}/latest")
+        ann_dir = Path(f"{anns_dir}/all")
         if not ann_dir.exists():
-            logging.info(f"{anns_dir} not have latest dir")
+            logging.info(f"{anns_dir} not have all dir")
             continue
 
         xml_paths = [ Path(p) for p in glob.glob(f"{ann_dir}/*")]

@@ -148,7 +148,7 @@ def add_extract_latest(subparsers:_SubParsersAction):
     epilog='''
     <詳細説明>-----------------------------------------------
     以下のようなディレクトリ構造を持つデータセット群を対象に最新のxmlファイルを一つのディレクトリにまとめる。
-    [datasets/dataset_xxxxx_xxxxx/anns/latest].
+    [datasets/dataset_xxxxx_xxxxx/anns/all].
     コピー先はout_dirで指定されたディレクトリ上にannsというディレクトリを作成してソコにコピーを行う。
     同名のファイルは上書きされる。
     '''
