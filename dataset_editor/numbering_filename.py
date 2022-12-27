@@ -87,7 +87,7 @@ def main(args):
         save_func(img_path, out_file)
 
         img_name = img_path.name
-        out_name2img_name[out_name] = img_name
+        out_name2img_name[out_file.name] = img_name
     txt = json.dumps(out_name2img_name, indent=2)
     json_file = Path(f"{out_dir}/numbering2org.json")
     with json_file.open("w") as f:
