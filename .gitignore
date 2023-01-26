@@ -1,6 +1,6 @@
 # dir
 .venv
-__pychace__
+__pycache__
 
 # file
 poetry.lock

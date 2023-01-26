@@ -11,10 +11,11 @@ DESCRIPTION='''
 import os
 from argparse import ArgumentParser, _SubParsersAction
 import subprocess
+from pathlib import Path
 
-CURR_DIR = os.path.abspath(os.path.curdir)
-FILE_DIR = os.path.abspath(os.path.dirname(__file__))
-PYTHON_PATH = "python"
+CURR_DIR = Path(os.path.curdir).absolute()
+FILE_DIR = Path(os.path.dirname(__file__)).absolute()
+PYTHON_PATH = FILE_DIR.joinpath("../.venv/bin/python")
 
 def main():
     parser = ArgumentParser(description=DESCRIPTION)
@@ -24,6 +25,7 @@ def main():
     add_repair(subparsers)
     add_mkdir(subparsers)
     add_extract_latest(subparsers)
+    add_separate_traindata(subparsers)
 
     args = parser.parse_args()
     if hasattr(args, "handler"):
@@ -164,6 +166,36 @@ def add_extract_latest(subparsers:_SubParsersAction):
         command += ["extract_latest.py"]
         command += [os.path.abspath(_args.datasets)]
         command += [os.path.abspath(_args.out_dir)]
+        subprocess.run(command, cwd=f"{FILE_DIR}")
+    
+    parser.set_defaults(handler=call)
+
+
+def add_separate_traindata(subparsers:_SubParsersAction):
+    description='''
+    データ群を学習用、テスト用、検証用に分割する。
+    '''
+    epilog='''
+    '''
+    parser:ArgumentParser = subparsers.add_parser(
+        "separate_train", description=description, epilog=epilog)
+    parser.add_argument("dataset_dir", type=str, help="dataset dir path")
+    parser.add_argument("output_dir", type=str, help="output dir path")
+    parser.add_argument("--ratio", type=float, default=0.4, help="test ratio")
+    parser.add_argument("--not_val", action="store_false")
+    parser.add_argument("--log_level", type=str, choices=["info", "debug"], default="info", help="log level")
+
+    def call(*args):
+        _args = args[0]
+        command = []
+        command += [PYTHON_PATH] 
+        command += ["separate_traindata.py"]
+        command += [os.path.abspath(_args.dataset_dir)]
+        command += [os.path.abspath(_args.output_dir)]
+        command += ["--ratio", str(_args.ratio)]
+        if not _args.not_val:
+            command += ["--not_val"]
+        command += ["--log_level", _args.log_level]
         subprocess.run(command, cwd=f"{FILE_DIR}")
     
     parser.set_defaults(handler=call)
