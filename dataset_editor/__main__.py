@@ -183,6 +183,7 @@ def add_separate_traindata(subparsers:_SubParsersAction):
     parser.add_argument("output_dir", type=str, help="output dir path")
     parser.add_argument("--ratio", type=float, default=0.4, help="test ratio")
     parser.add_argument("--not_val", action="store_true")
+    parser.add_argument("--random", action="store_true", help="ランダムフラグ. このフラグがONの時はデータに関係なくランダムに分割する")
     parser.add_argument("--log_level", type=str, choices=["info", "debug"], default="info", help="log level")
 
     def call(*args):
@@ -195,6 +196,8 @@ def add_separate_traindata(subparsers:_SubParsersAction):
         command += ["--ratio", str(_args.ratio)]
         if _args.not_val:
             command += ["--not_val"]
+        if _args.random:
+            command += ["--random"]
         command += ["--log_level", _args.log_level]
         subprocess.run(command, cwd=f"{FILE_DIR}")
     
