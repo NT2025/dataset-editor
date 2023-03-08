@@ -18,7 +18,7 @@ def parse_args() -> Dict[str, Any]:
     parser.add_argument("dataset_dir", type=str, help="dataset dir path")
     parser.add_argument("output_dir", type=str, help="output dir path")
     parser.add_argument("--ratio", type=float, default=0.4, help="test ratio. train:test = (1-ratio):ratio.")
-    parser.add_argument("--not_val", action="store_false")
+    parser.add_argument("--not_val", action="store_true")
     parser.add_argument("--log_level", type=str, choices=["info", "debug"], default="info", help="log level")
 
     cli_args = vars(parser.parse_args())
@@ -151,7 +151,7 @@ def check_valid_dataset(dataset_paths:List[Path]):
 
 
 @add_log_function_start_end_with_debug
-def separate_dataset(dataset_paths:List[Path], is_use_val:bool, test_ratio:float=0.4)-> Tuple[List[Path], List[Path], Optional[List[Path]]]:
+def separate_dataset(dataset_paths:List[Path], is_not_use_val:bool, test_ratio:float=0.4)-> Tuple[List[Path], List[Path], Optional[List[Path]]]:
     # データ群を学習用、テスト用、検証用に分割する
     ## まずはデータ群を撮影日時の共通点でグループ化する
     ## 撮影日時グループを撮影日時に関して昇順ソートする
@@ -225,7 +225,7 @@ def separate_dataset(dataset_paths:List[Path], is_use_val:bool, test_ratio:float
     show_datasets(train_date_time2paths, "trains")
     train_paths = [ p for paths in train_date_time2paths.values() for p in paths ]
 
-    if not is_use_val:
+    if is_not_use_val:
         show_datasets(test_date_time2paths, "tests")
         test_paths = [ p for paths in test_date_time2paths.values() for p in paths ]
         return train_paths, test_paths, None
