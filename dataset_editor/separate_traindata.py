@@ -19,6 +19,7 @@ def parse_args() -> Dict[str, Any]:
     parser.add_argument("output_dir", type=str, help="output dir path")
     parser.add_argument("--ratio", type=float, default=0.4, help="test ratio. train:test = (1-ratio):ratio.")
     parser.add_argument("--not_val", action="store_true")
+    parser.add_argument("--random", action="store_true", help="ランダムフラグ. このフラグがONの時はデータに関係なくランダムに分割する")
     parser.add_argument("--log_level", type=str, choices=["info", "debug"], default="info", help="log level")
 
     cli_args = vars(parser.parse_args())
@@ -37,23 +38,13 @@ def main(*args, **kwargs):
     # データ群のパスの検索
     dataset_paths = find_dataset(kwargs['dataset_dir'])
 
-    # 有効なデータ群か調査する
-    ## データ群のstem名が'*yyyymmdd_*_hhmmss*'等の形になっていれば有効
-    check_valid_dataset(dataset_paths)
-
-    # データ群を学習用、テスト用、検証用に分割する
-    ## まずはデータ群を撮影日時の共通点でグループ化する
-    ## 撮影日時グループを撮影日時に関して昇順ソートする
-    ## 撮影日時グループの最も古いデータと新しいデータを抽出して学習用グループに配属させる
-        ## （古いデータと新しいデータはアノテーション依頼の際に分割されるから）
-    ## 撮影日時グループを画像枚数に関して昇順ソートする
-    ## 撮影日時グループを３分割する。これによりデータ数が多、中間、少のグループに分けられる。
-    ## 中間グループからランダムにデータ群を抽出してテスト用グループに配属させる。
-    ### この作業はテスト用グループが一定のデータ数(全データが3~4割程度？)になると終わるようにする
-    ## 学習用、テスト用に配属されなかったデータ群は学習用グループに配属させる
-    ## 検証用データへの分割が必要な場合はテスト用データを半分に分割して検証用データとする。
-    train_paths, test_paths, val_paths = separate_dataset(dataset_paths, kwargs['not_val'], kwargs["ratio"])
-
+    if kwargs['random']:
+        train_paths, test_paths, val_paths = separate_random(dataset_paths, kwargs["not_val"], kwargs["ratio"])
+    else:
+        # 有効なデータ群か調査する
+        check_valid_dataset(dataset_paths)
+        # データ群を学習用、テスト用、検証用に分割する
+        train_paths, test_paths, val_paths = separate_dataset(dataset_paths, kwargs['not_val'], kwargs["ratio"])
 
     # 分割されたデータ群をそれぞれコピーして保存する。
     copy_paths(train_paths, kwargs['output_dir'], "train")
@@ -121,6 +112,25 @@ def find_dataset(path:Union[str, Path]) -> List[Path]:
     assert len(dataset_paths) > 0, f"Not Found file in {_path}"
 
     return dataset_paths
+
+
+@add_log_function_start_end_with_debug
+def separate_random(paths:List[Path], is_not_use_val:bool, test_ratio:float=0.4) -> Tuple[List[Path], List[Path], Optional[List[Path]]]:
+    random.shuffle(paths)
+    num_all_paths:int = len(paths)
+    separate_idx:int = int(round(num_all_paths * (1-test_ratio)))
+
+    train_paths:List[Path] = paths[:separate_idx]
+    test_paths:List[Path] = paths[separate_idx:]
+    val_paths:Optional[List[Path]] = None
+
+    if not is_not_use_val:
+        num_test_paths:int = len(test_paths)
+        separate_idx:int = int(round(num_test_paths) * 0.5)
+        val_paths = test_paths[:separate_idx]
+        test_paths = test_paths[separate_idx:]
+
+    return train_paths, test_paths, val_paths
 
 
 @add_log_function_start_end_with_debug
