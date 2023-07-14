@@ -3,13 +3,15 @@ DESCRIPTION='''
 ----------------------------------------------------------------------
 `numbering`:画像データを５桁の番号の名前に変更して新たに保存する関数。
 `repair`:ファイル名が変更されたファイル(numbering2org.json等)に基づいて、対象画像ファイルをオリジナルの名前として新たに保存するプログラム.
-`mkdir`:
+`mkdir`:データセットディレクトリを作成してデータセットを分割して保存する
 `ext_latest`:データセット群からxmlファイルを一つディレクトリにコピーしてまとめる。
+`separate_train`:データセットをtrain, test, valに分割する
+`reduce`:データセットを減らす
 '''
 
 
 import os
-from argparse import ArgumentParser, _SubParsersAction
+from argparse import ArgumentParser, _SubParsersAction, RawTextHelpFormatter
 import subprocess
 from pathlib import Path
 
@@ -18,7 +20,7 @@ FILE_DIR = Path(os.path.dirname(__file__)).absolute()
 PYTHON_PATH = FILE_DIR.joinpath("../.venv/bin/python")
 
 def main():
-    parser = ArgumentParser(description=DESCRIPTION)
+    parser = ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
     subparsers = parser.add_subparsers()
 
     add_numbering(subparsers)
@@ -26,6 +28,7 @@ def main():
     add_mkdir(subparsers)
     add_extract_latest(subparsers)
     add_separate_traindata(subparsers)
+    add_reduce(subparsers)
 
     args = parser.parse_args()
     if hasattr(args, "handler"):
@@ -201,6 +204,32 @@ def add_separate_traindata(subparsers:_SubParsersAction):
         command += ["--log_level", _args.log_level]
         subprocess.run(command, cwd=f"{FILE_DIR}")
     
+    parser.set_defaults(handler=call)
+
+
+def add_reduce(subparsers:_SubParsersAction):
+    description="""
+        データセットを何個か飛ばしで抽出することでデータセットを削減する。
+        主に動画を画像化した際にあまり変化のないフレームが発生するので、削減する目的で使用する。
+        抽出されたデータセットは対象ディレクトリ_reducedという名称のディレクトリに保存される
+        """
+    epilog='''
+    '''
+    parser:ArgumentParser = subparsers.add_parser(
+        "reduce", description=description, epilog=epilog)
+    parser.add_argument("data_dir", type=str)
+    parser.add_argument("--skip_num", type=int, default=2)
+
+
+    def call(*args):
+        _args = args[0]
+        command = []
+        command += [PYTHON_PATH] 
+        command += ["reduce.py"]
+        command += [os.path.abspath(_args.data_dir)]
+        command += ["--skip_num", str(_args.skip_num)]
+        subprocess.run(command, cwd=f"{FILE_DIR}")
+
     parser.set_defaults(handler=call)
 
 
