@@ -314,7 +314,7 @@ def show_datasets(date_time2paths:Dict[str, List[Path]], _type:str):
 
 
 def copy_paths(paths:List[Path], out_dir:str, _type:str):
-    assert _type in ["train", "test", "val"]
+    assert _type in ["trains", "tests", "vals"]
 
     _out_dir = Path(out_dir).joinpath(_type)
     _out_dir.mkdir(exist_ok=True)
