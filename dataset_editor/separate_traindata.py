@@ -47,9 +47,9 @@ def main(*args, **kwargs):
         train_paths, test_paths, val_paths = separate_dataset(dataset_paths, kwargs['not_val'], kwargs["ratio"])
 
     # 分割されたデータ群をそれぞれコピーして保存する。
-    copy_paths(train_paths, kwargs['output_dir'], "train")
-    copy_paths(test_paths, kwargs['output_dir'], "test")
-    if val_paths is not None: copy_paths(val_paths, kwargs['output_dir'], "val")
+    copy_paths(train_paths, kwargs['output_dir'], "trains")
+    copy_paths(test_paths, kwargs['output_dir'], "tests")
+    if val_paths is not None: copy_paths(val_paths, kwargs['output_dir'], "vals")
 
 
 def show_cli_args(cli_args:Dict[str, Any]):
