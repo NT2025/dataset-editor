@@ -29,6 +29,8 @@ def main():
     add_extract_latest(subparsers)
     add_separate_traindata(subparsers)
     add_reduce(subparsers)
+    add_choice(subparsers)
+    add_group(subparsers)
 
     args = parser.parse_args()
     if hasattr(args, "handler"):
@@ -228,6 +230,44 @@ def add_reduce(subparsers:_SubParsersAction):
         command += ["reduce.py"]
         command += [os.path.abspath(_args.data_dir)]
         command += ["--skip_num", str(_args.skip_num)]
+        subprocess.run(command, cwd=f"{FILE_DIR}")
+
+    parser.set_defaults(handler=call)
+
+
+def add_choice(subparsers:_SubParsersAction):
+    description="ファイル群をランダムに抽出"
+    parser:ArgumentParser = subparsers.add_parser(
+        "choice", description=description
+    )
+    parser.add_argument("dir", type=str)
+    parser.add_argument("num", type=int)
+
+    def call(*args):
+        _args = args[0]
+        command = []
+        command += [PYTHON_PATH]
+        command += ["choice_random.py"]
+        command += [os.path.abspath(_args.dir)]
+        command += [str(_args.num)]
+        subprocess.run(command, cwd=f"{FILE_DIR}")
+
+    parser.set_defaults(handler=call)
+
+
+def add_group(subparsers:_SubParsersAction):
+    description = "'_'区切りの画像群を前２つの単語のディレクトリにまとめる"
+    parser:ArgumentParser = subparsers.add_parser(
+        "group", description=description
+    )
+    parser.add_argument("dir", type=str, help="画像群のディレクトリ")
+
+    def call(*args):
+        _args = args[0]
+        command = []
+        command += [PYTHON_PATH]
+        command += ["group_histgram.py"]
+        command += [os.path.abspath(_args.dir)]
         subprocess.run(command, cwd=f"{FILE_DIR}")
 
     parser.set_defaults(handler=call)
