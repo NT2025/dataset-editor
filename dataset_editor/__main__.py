@@ -32,6 +32,7 @@ def main():
     add_choice(subparsers)
     add_group(subparsers)
     add_diff_copy(subparsers)
+    add_for_rsync(subparsers)
 
     args = parser.parse_args()
     if hasattr(args, "handler"):
@@ -298,6 +299,23 @@ def add_diff_copy(subparsers:_SubParsersAction):
 
     parser.set_defaults(handler=call)
 
+
+def add_for_rsync(subparsers:_SubParsersAction):
+    description = "アノテーション用データセットから保存用のモノを抽出してsymlinkで繋げる"
+    parser:ArgumentParser = subparsers.add_parser(
+        "for_rsync", description=description, help=description
+    )
+    parser.add_argument("src_dir", type=str, help="dataset dir")
+
+    def call(*args):
+        _args = args[0]
+        command = []
+        command += [PYTHON_PATH]
+        command += ["mkdirs_for_rsync_dataset.py"]
+        command += [os.path.abspath(_args.src_dir)]
+        subprocess.run(command, cwd=f"{FILE_DIR}")
+
+    parser.set_defaults(handler=call)
 
 if __name__ == "__main__":
     main()    
