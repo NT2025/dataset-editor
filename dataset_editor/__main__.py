@@ -33,6 +33,7 @@ def main():
     add_group(subparsers)
     add_diff_copy(subparsers)
     add_for_rsync(subparsers)
+    add_move_into(subparsers)
 
     args = parser.parse_args()
     if hasattr(args, "handler"):
@@ -313,6 +314,26 @@ def add_for_rsync(subparsers:_SubParsersAction):
         command += [PYTHON_PATH]
         command += ["mkdirs_for_rsync_dataset.py"]
         command += [os.path.abspath(_args.src_dir)]
+        subprocess.run(command, cwd=f"{FILE_DIR}")
+
+    parser.set_defaults(handler=call)
+
+
+def add_move_into(subparsers:_SubParsersAction):
+    description = " ディレクトリAにディレクトリを作成してファイルを全て移動させる。"
+    parser:ArgumentParser = subparsers.add_parser(
+        "move_into", description=description, help=description
+    )
+    parser.add_argument("tgt_dir", type=str, help="target dir")
+    parser.add_argument("name", type=str, help="new dir name")
+
+    def call(*args):
+        _args = args[0]
+        command = []
+        command += [PYTHON_PATH]
+        command += ["move_into.py"]
+        command += [os.path.abspath(_args.tgt_dir)]
+        command += [_args.name]
         subprocess.run(command, cwd=f"{FILE_DIR}")
 
     parser.set_defaults(handler=call)
