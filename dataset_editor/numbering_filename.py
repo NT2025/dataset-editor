@@ -1,6 +1,7 @@
-DESCRIPTION='''
-画像データを５桁の番号の名前に変更して新たに保存する関数.  
-'''
+""" 画像データを５桁の番号の名前に変更して新たに保存する関数.  
+"""
+from __future__ import annotations
+DESCRIPTION=__doc__
 EPILOG='''
 <詳細>-------------------------------------
 複数の画像ファイルを所有しているフォルダから画像ファイルのpathを読み込みリストに保存する。
@@ -16,16 +17,14 @@ import os
 from pathlib import Path
 import shutil
 import glob
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 import random
 import json 
 
 import tqdm
 
 
-def parse_args():
-    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG)
-
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("img_dir", type=str)
     parser.add_argument("out_dir", type=str)
     parser.add_argument("-m", "--mode", choices=["absolute", "relative", "copy"], default="copy",
@@ -36,8 +35,7 @@ def parse_args():
                         help="add prefix for filename. Example is [prefix]_00001.jpg. default is ''")
     parser.add_argument("-s", "--shuffle", action="store_true", help="shuffle flag. default is False")
 
-    args = vars(parser.parse_args())
-    return args
+    return parser
 
 
 def main(args):
@@ -114,5 +112,6 @@ def copy_file(src_file:Path, dst_file:Path):
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    main(args)
+    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))

@@ -1,13 +1,7 @@
-DESCRIPTION='''
-データセットに用いるファイルを扱うためのプログラム群。
-----------------------------------------------------------------------
-`numbering`:画像データを５桁の番号の名前に変更して新たに保存する関数。
-`repair`:ファイル名が変更されたファイル(numbering2org.json等)に基づいて、対象画像ファイルをオリジナルの名前として新たに保存するプログラム.
-`mkdir`:データセットディレクトリを作成してデータセットを分割して保存する
-`ext_latest`:データセット群からxmlファイルを一つディレクトリにコピーしてまとめる。
-`separate_train`:データセットをtrain, test, valに分割する
-`reduce`:データセットを減らす
-'''
+""" データセットに用いるファイルを扱うためのプログラム群。
+"""
+from __future__ import annotations
+DESCRIPTION= __doc__
 
 
 import os
@@ -15,12 +9,14 @@ from argparse import ArgumentParser, _SubParsersAction, RawTextHelpFormatter
 import subprocess
 from pathlib import Path
 
+import __add_path
+
 CURR_DIR = Path(os.path.curdir).absolute()
 FILE_DIR = Path(os.path.dirname(__file__)).absolute()
 PYTHON_PATH = FILE_DIR.joinpath("../.venv/bin/python")
 
-def main():
-    parser = ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
+
+def add_arguments(parser: ArgumentParser):
     subparsers = parser.add_subparsers()
 
     add_numbering(subparsers)
@@ -35,52 +31,28 @@ def main():
     add_for_rsync(subparsers)
     add_move_into(subparsers)
 
-    args = parser.parse_args()
-    if hasattr(args, "handler"):
-        args.handler(args, parser)
+    return parser
+
+
+def main(*args, **kwargs):
+    if 'handler' in kwargs.keys():
+        handler = kwargs.pop('handler')
+        handler(**kwargs)
     else:
+        parser = ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
+        add_arguments(parser)
         parser.print_help()
 
 
 def add_numbering(subparsers:_SubParsersAction):
-    description='''
-    画像データを５桁の番号の名前に変更して新たに保存する関数.  
-    '''
-    epilog='''
-    <詳細>-------------------------------------
-    複数の画像ファイルを所有しているフォルダから画像ファイルのpathを読み込みリストに保存する。
-    シャッフルフラグがONの場合ランダムにリストをシャッフルする。
-    次に画像ディレクトリの親ディレクトリ上に`numberings`ディレクトリを作成する。
-    画像ファイルを５桁の番号の名前にリネームしながら、`numberings`ディレクトリにコピーする。
-    （この際に`prefix`引数が設定してある場合は`[prefix]_xxxxxx.jpg`のように数字の前にテキストが挿入される。)
-    また、リネーム情報を辞書に記録する。`dict={number:org}`のように
-    全てのファイルがコピーされた後にリネーム情報を`numbering2org.json`として画像ディレクトリの親ディレクトリに保存する。
-    modeによってシンボリックリンクを作成するか、純粋にコピーするか選択する。
-    '''
+    from dataset_editor import numbering_filename
     parser:ArgumentParser = subparsers.add_parser(
-        "numbering", description=description, epilog=epilog)
-    parser.add_argument("img_dir", type=str)
-    parser.add_argument("out_dir", type=str)
-    parser.add_argument("-m", "--mode", choices=["absolute", "relative", "copy"], default="copy",
-                        help="choosing safe mode . default is '''copy'''. '''copy''' mean copying file. \
-                            '''absolute''' mean symlink that use absolute path. \
-                            '''relative''' mean symlink that use relative path")
-    parser.add_argument("-p", "--prefix", type=str, default="", 
-                        help="add prefix for filename. Example is [prefix]_00001.jpg. default is ''")
-    parser.add_argument("-s", "--shuffle", action="store_true", help="shuffle flag. default is False")
+        "numbering", help=numbering_filename.__doc__)
+    parser = numbering_filename.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH]
-        command += ["numbering_filename.py"]
-        command += [os.path.abspath(_args.img_dir)]
-        command += [os.path.abspath(_args.out_dir)]
-        command += ["-p", _args.prefix]
-        command += ["-s"] if _args.shuffle else []
-        command += ["-m", _args.mode]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
-    
+    def call(*args, **kwargs):
+        numbering_filename.main(**kwargs)
+
     parser.set_defaults(handler=call)
 
 
@@ -339,4 +311,6 @@ def add_move_into(subparsers:_SubParsersAction):
     parser.set_defaults(handler=call)
 
 if __name__ == "__main__":
-    main()    
+    parser = ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))
