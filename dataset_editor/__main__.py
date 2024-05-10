@@ -57,32 +57,17 @@ def add_numbering(subparsers:_SubParsersAction):
 
 
 def add_repair(subparsers:_SubParsersAction):
-    description='''
-    ファイル名が変更されたファイル(numbering2org.json等)に基づいて、対象画像ファイルをオリジナルの名前として新たに保存するプログラム.
-    '''
-    epilog='''
-    <詳細>----------------------------------------
-    リネーム情報(numbering2org.json)を読み込む。
-    画像ディレクトリの親ディレクトリ上に保存用ディレクトリを作成する。
-    画像ファイルをコピーして、リネーム情報を使って数字ネームから元ネームに変換して保存用ディレクトリに保存する。
-    画像ディレクトリ内にリネーム情報のファイルが見つからない場合は無視される。
-    '''
+    from dataset_editor import repair_renamed_imgs
     parser:ArgumentParser = subparsers.add_parser(
-        "repair", description=description, epilog=epilog
+        "repair",
+        help=repair_renamed_imgs.__doc__,
+        description=repair_renamed_imgs.__doc__
     )
-    parser.add_argument("imgdir", type=str, help="img dir")
-    parser.add_argument("json", type=str, help="renamed2org.json")
+    parser = repair_renamed_imgs.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        print(_args)
-        command = []
-        command += [PYTHON_PATH]
-        command += ["repair_renamed_imgs.py"]
-        command += [os.path.abspath(_args.imgdir)]
-        command += [os.path.abspath(_args.json)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
-    
+    def call(*args, **kwargs):
+        repair_renamed_imgs.main(**kwargs)
+
     parser.set_defaults(handler=call)
 
 
