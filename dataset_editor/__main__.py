@@ -117,27 +117,16 @@ def add_separate_traindata(subparsers:_SubParsersAction):
 
 
 def add_reduce(subparsers:_SubParsersAction):
-    description="""
-        データセットを何個か飛ばしで抽出することでデータセットを削減する。
-        主に動画を画像化した際にあまり変化のないフレームが発生するので、削減する目的で使用する。
-        抽出されたデータセットは対象ディレクトリ_reducedという名称のディレクトリに保存される
-        """
-    epilog='''
-    '''
+    from dataset_editor import reduce
     parser:ArgumentParser = subparsers.add_parser(
-        "reduce", description=description, epilog=epilog)
-    parser.add_argument("data_dir", type=str)
-    parser.add_argument("--skip_num", type=int, default=2)
+        "reduce",
+        help=reduce.__doc__,
+        description=reduce.__doc__,
+    )
+    reduce.add_arguments(parser)
 
-
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH] 
-        command += ["reduce.py"]
-        command += [os.path.abspath(_args.data_dir)]
-        command += ["--skip_num", str(_args.skip_num)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
+    def call(*args, **kwargs):
+        reduce.main(**kwargs)
 
     parser.set_defaults(handler=call)
 
