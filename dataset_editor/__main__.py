@@ -147,19 +147,16 @@ def add_choice(subparsers:_SubParsersAction):
 
 
 def add_group(subparsers:_SubParsersAction):
-    description = "'_'区切りの画像群を前２つの単語のディレクトリにまとめる"
+    from dataset_editor import group_histgram
     parser:ArgumentParser = subparsers.add_parser(
-        "group", description=description
+        "group",
+        help=group_histgram.__doc__,
+        description=group_histgram.__doc__
     )
-    parser.add_argument("dir", type=str, help="画像群のディレクトリ")
+    parser = group_histgram.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH]
-        command += ["group_histgram.py"]
-        command += [os.path.abspath(_args.dir)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
+    def call(*args, **kwargs):
+        group_histgram.main(**kwargs)
 
     parser.set_defaults(handler=call)
 
