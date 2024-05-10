@@ -1,6 +1,6 @@
+""" データ群を学習用、テスト用、検証用に分割する。
 """
-データ群を学習用、テスト用、検証用に分割する。
-"""
+from __future__ import annotations
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import datetime
 import logging
@@ -12,9 +12,7 @@ import shutil
 
 DATETIME2PATHS = Dict[str, List[Path]]
 
-def parse_args() -> Dict[str, Any]:
-    parser = ArgumentParser(epilog=__doc__, formatter_class=RawDescriptionHelpFormatter)
-
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("dataset_dir", type=str, help="dataset dir path")
     parser.add_argument("output_dir", type=str, help="output dir path")
     parser.add_argument("--ratio", type=float, default=0.4, help="test ratio. train:test = (1-ratio):ratio.")
@@ -22,8 +20,7 @@ def parse_args() -> Dict[str, Any]:
     parser.add_argument("--random", action="store_true", help="ランダムフラグ. このフラグがONの時はデータに関係なくランダムに分割する")
     parser.add_argument("--log_level", type=str, choices=["info", "debug"], default="info", help="log level")
 
-    cli_args = vars(parser.parse_args())
-    return cli_args
+    return parser
 
 
 def main(*args, **kwargs):
@@ -326,5 +323,6 @@ def copy_paths(paths:List[Path], out_dir:str, _type:str):
     print("")
 
 if __name__ == "__main__":
-    cli_args = parse_args()
-    main(**cli_args)
+    parser = ArgumentParser(description=__doc__, formatter_class=RawDescriptionHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))

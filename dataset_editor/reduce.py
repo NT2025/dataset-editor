@@ -1,19 +1,18 @@
-"""
-データセットを何個か飛ばしで抽出することでデータセットを削減する。
+""" データセットを何個か飛ばしで抽出することでデータセットを削減する。
 主に動画を画像化した際にあまり変化のないフレームが発生するので、削減する目的で使用する。
 抽出されたデータセットは対象ディレクトリ_reducedという名称のディレクトリに保存される
 """
-
+from __future__ import annotations
 from pathlib import Path
 import shutil
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 
-def parse_args():
-    parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("data_dir", type=str)
     parser.add_argument("--skip_num", type=int, default=2)
-    return vars(parser.parse_args())
+
+    return parser
 
 
 def main(*args, **kwargs):
@@ -43,4 +42,6 @@ def main(*args, **kwargs):
 
 
 if __name__ == "__main__":
-    main(**parse_args())
+    parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))

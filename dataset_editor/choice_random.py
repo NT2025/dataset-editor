@@ -1,16 +1,16 @@
 """ 対象ディレクトリのファイル群をランダムに抽出する
 """
+from __future__ import annotations
 from pathlib import Path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 import random
 import shutil
 
-def parse_args():
-    parser = ArgumentParser()
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("dir", type=str, help="ファイルを含むディレクトリ")
     parser.add_argument("num", type=int, help="ランダム抽出数")
 
-    return vars(parser.parse_args())
+    return parser
 
 
 def main(*args, **kwargs):
@@ -39,4 +39,6 @@ def main(*args, **kwargs):
 
 
 if __name__ == "__main__":
-    main(**parse_args())
+    parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))

@@ -1,6 +1,7 @@
-DESCRIPTION='''
-ファイル名が変更されたファイル(numbering2org.json等)に基づいて、対象画像ファイルをオリジナルの名前として新たに保存するプログラム.
-'''
+""" ファイル名が変更されたファイル(numbering2org.json等)に基づいて、対象画像ファイルをオリジナルの名前として新たに保存するプログラム.
+"""
+from __future__ import annotations
+DESCRIPTION=__doc__
 EPILOG='''
 <詳細>------------------------------------------------------
 リネーム情報(numbering2org.json)を読み込む。
@@ -11,7 +12,7 @@ EPILOG='''
 
 import json
 from pathlib import Path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 import shutil
 import glob
 from typing import List, Dict
@@ -21,12 +22,11 @@ from xml.dom import NotFoundErr
 import tqdm
 
 
-def parse_args():
-    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG)
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("imgdir", type=str, help="img dir")
     parser.add_argument("json", type=str, help="renamed2org.json")
-    args = vars(parser.parse_args())
-    return args
+
+    return parser
 
 
 def main(args):
@@ -97,6 +97,7 @@ def copy_as_orgname(renamed2org:Dict[str, str], imgdir:Path, save_dir:Path):
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    main(args)
+    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))
 
