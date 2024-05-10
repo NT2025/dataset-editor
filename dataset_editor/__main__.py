@@ -72,38 +72,17 @@ def add_repair(subparsers:_SubParsersAction):
 
 
 def add_mkdir(subparsers:_SubParsersAction):
-    description='''
-    ナンバリングされたファイルを所持するディレクトリを指定のファイル数ごとに分割するプログラム。
-    '''
-    epilog='''
-    ＜詳細説明＞------------------------------------------------
-    まず`file_dir`で指定されたディレクトリ上のファイルを読み込む。
-    （このディレクトリは`numbering_filename.py`によってナンバリングされている)
-    読み込んだファイルを指定ファイル数ごとにグループにまとめる。
-    次に引数`output`で指定されたディレクトリの下に`datasets`ディレクトリを作成する。
-    その後`datasets`ディレクトリ下に`dataset_xxxxx_XXXXX`というディレクトリをグループ毎に作成する。
-    （このディレクトリのxxxxxはグループの最小のナンバーでXXXXXは最大のナンバーである。）
-    続けて`dataset_xxxxx_XXXXX`ディレクトリ下に`imgs_xxxxx_XXXXX`というディレクトリを作成する。
-    そして`imgs_xxxxx_XXXXX`下にグループ内の画像ファイルのシンボリックリンクを作成する(参照リンクで)
-    '''
+    from dataset_editor import separate_dataset_and_mkdir
     parser:ArgumentParser = subparsers.add_parser(
-        "mkdir", description=description, epilog=epilog)
-    parser.add_argument("file_dir", type=str)
-    parser.add_argument("-n", "--devide_number", type=int, default=500, 
-                        help="devided number for dataset. default is 500")
-    parser.add_argument("-o", "--output", type=str, default=f"{CURR_DIR}",
-                        help=f"output root dir. default {CURR_DIR}")
+        "mkdir",
+        help=separate_dataset_and_mkdir.__doc__,
+        description=separate_dataset_and_mkdir.__doc__,
+    )
+    parser = separate_dataset_and_mkdir.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH] 
-        command += ["separate_dataset_and_mkdir.py"]
-        command += [os.path.abspath(_args.file_dir)]
-        command += ["-n", str(_args.devide_number)]
-        command += ["-o", os.path.abspath(_args.output)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
-    
+    def call(*args, **kwargs):
+        separate_dataset_and_mkdir.main(**kwargs)
+
     parser.set_defaults(handler=call)
 
 

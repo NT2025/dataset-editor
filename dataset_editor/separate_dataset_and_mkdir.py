@@ -1,6 +1,7 @@
-DESCRIPTION='''
-ナンバリングされたファイルを所持するディレクトリを指定のファイル数ごとに分割するプログラム。
-'''
+""" ナンバリングされたファイルを所持するディレクトリを指定のファイル数ごとに分割するプログラム。
+"""
+from __future__ import annotations
+DESCRIPTION=__doc__
 EPILOG='''
 ＜詳細説明＞------------------------------------------------
 まず`file_dir`で指定されたディレクトリ上のファイルを読み込む。
@@ -14,7 +15,7 @@ EPILOG='''
 '''
 
 import os
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 from pathlib import Path
 import glob
 
@@ -24,18 +25,14 @@ from natsort import natsorted
 CURR_DIR = Path(os.path.abspath(os.path.curdir))
 
 
-def parse_args():
-
-    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG)
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("file_dir", type=str)
     parser.add_argument("-n", "--devide_number", type=int, default=500, 
                         help="devided number for dataset. default is 500")
     parser.add_argument("-o", "--output", type=str, default=f"{CURR_DIR}",
                         help=f"output root dir. default {CURR_DIR}")
 
-    args = vars(parser.parse_args())
-
-    return args
+    return parser
 
 
 def main(args):
@@ -139,5 +136,6 @@ def link_files(file_groups:list, file_infos:list):
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    main(args)
+    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))
