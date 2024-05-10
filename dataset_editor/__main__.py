@@ -102,35 +102,17 @@ def add_extract_latest(subparsers:_SubParsersAction):
 
 
 def add_separate_traindata(subparsers:_SubParsersAction):
-    description='''
-    データ群を学習用、テスト用、検証用に分割する。
-    '''
-    epilog='''
-    '''
+    from dataset_editor import separate_traindata
     parser:ArgumentParser = subparsers.add_parser(
-        "separate_train", description=description, epilog=epilog)
-    parser.add_argument("dataset_dir", type=str, help="dataset dir path")
-    parser.add_argument("output_dir", type=str, help="output dir path")
-    parser.add_argument("--ratio", type=float, default=0.4, help="test ratio")
-    parser.add_argument("--not_val", action="store_true")
-    parser.add_argument("--random", action="store_true", help="ランダムフラグ. このフラグがONの時はデータに関係なくランダムに分割する")
-    parser.add_argument("--log_level", type=str, choices=["info", "debug"], default="info", help="log level")
+        "separate_train",
+        help=separate_traindata.__doc__,
+        description=separate_traindata.__doc__,
+    )
+    parser = separate_traindata.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH] 
-        command += ["separate_traindata.py"]
-        command += [os.path.abspath(_args.dataset_dir)]
-        command += [os.path.abspath(_args.output_dir)]
-        command += ["--ratio", str(_args.ratio)]
-        if _args.not_val:
-            command += ["--not_val"]
-        if _args.random:
-            command += ["--random"]
-        command += ["--log_level", _args.log_level]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
-    
+    def call(*args, **kwargs):
+        separate_traindata.main(**kwargs)
+
     parser.set_defaults(handler=call)
 
 
