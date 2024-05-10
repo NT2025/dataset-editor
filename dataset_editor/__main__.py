@@ -192,21 +192,16 @@ def add_for_rsync(subparsers:_SubParsersAction):
 
 
 def add_move_into(subparsers:_SubParsersAction):
-    description = " ディレクトリAにディレクトリを作成してファイルを全て移動させる。"
+    from dataset_editor import move_into
     parser:ArgumentParser = subparsers.add_parser(
-        "move_into", description=description, help=description
+        "move_into",
+        help=move_into.__doc__,
+        description=move_into.__doc__,
     )
-    parser.add_argument("tgt_dir", type=str, help="target dir")
-    parser.add_argument("name", type=str, help="new dir name")
+    parser = move_into.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH]
-        command += ["move_into.py"]
-        command += [os.path.abspath(_args.tgt_dir)]
-        command += [_args.name]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
+    def call(*args, **kwargs):
+        move_into.main(**kwargs)
 
     parser.set_defaults(handler=call)
 
