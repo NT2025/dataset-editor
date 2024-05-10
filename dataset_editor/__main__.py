@@ -177,19 +177,16 @@ def add_diff_copy(subparsers:_SubParsersAction):
 
 
 def add_for_rsync(subparsers:_SubParsersAction):
-    description = "アノテーション用データセットから保存用のモノを抽出してsymlinkで繋げる"
+    from dataset_editor import mkdirs_for_rsync_dataset
     parser:ArgumentParser = subparsers.add_parser(
-        "for_rsync", description=description, help=description
+        "for_rsync", 
+        help=mkdirs_for_rsync_dataset.__doc__,
+        description=mkdirs_for_rsync_dataset.__doc__
     )
-    parser.add_argument("src_dir", type=str, help="dataset dir")
+    parser = mkdirs_for_rsync_dataset.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH]
-        command += ["mkdirs_for_rsync_dataset.py"]
-        command += [os.path.abspath(_args.src_dir)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
+    def call(*args, **kwargs):
+        mkdirs_for_rsync_dataset.main(**kwargs)
 
     parser.set_defaults(handler=call)
 
