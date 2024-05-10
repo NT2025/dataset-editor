@@ -132,21 +132,16 @@ def add_reduce(subparsers:_SubParsersAction):
 
 
 def add_choice(subparsers:_SubParsersAction):
-    description="ファイル群をランダムに抽出"
+    from dataset_editor import choice_random
     parser:ArgumentParser = subparsers.add_parser(
-        "choice", description=description
+        "choice",
+        help=choice_random.__doc__,
+        description=choice_random.__doc__
     )
-    parser.add_argument("dir", type=str)
-    parser.add_argument("num", type=int)
+    parser = choice_random.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH]
-        command += ["choice_random.py"]
-        command += [os.path.abspath(_args.dir)]
-        command += [str(_args.num)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
+    def call(*args, **kwargs):
+        choice_random.main(**kwargs)
 
     parser.set_defaults(handler=call)
 
