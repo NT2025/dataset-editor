@@ -1,17 +1,18 @@
 """ '_'区切りの画像群を前２つの単語のディレクトリにまとめる
 """
+from __future__ import annotations
 import os
 from pathlib import Path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 import shutil
 import subprocess
 import time
 
 
-def parse_args():
-    parser = ArgumentParser()
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("dir", type=str, help="画像群のディレクトリ")
-    return vars(parser.parse_args())
+
+    return parser
 
 
 def main(*args, **kwargs):
@@ -99,4 +100,6 @@ def ask_exe():
 
 
 if __name__ == "__main__":
-    main(**parse_args())
+    parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))

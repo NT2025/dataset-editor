@@ -1,7 +1,7 @@
-DESCRIPTION='''
-<概要>
-データセット群からxmlファイルを一つのディレクトリにコピーしてまとめる
-'''
+""" データセット群からxmlファイルを一つのディレクトリにコピーしてまとめる
+"""
+from __future__ import annotations
+DESCRIPTION=__doc__
 EPILOG='''
 <詳細説明>-----------------------------------------------
 以下のようなディレクトリ構造を持つデータセット群を対象に最新のxmlファイルを一つのディレクトリにまとめる。
@@ -13,19 +13,18 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 import logging
 import glob
 
 logging.basicConfig(level=logging.INFO)
 
-def parse_args():
-    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG)
+def add_arguments(parser: ArgumentParser):
     parser.add_argument("datasets", type=str)
     parser.add_argument("out_dir", type=str)
 
-    dict_args = vars(parser.parse_args())
-    return dict_args
+    return parser
+
 
 def main(dict_args):
     # 対象datasetsディレクトリの存在確認
@@ -74,5 +73,6 @@ def main(dict_args):
 
 
 if __name__ == "__main__":
-    dict_args = parse_args()
-    main(dict_args)
+    parser = ArgumentParser(description=DESCRIPTION, epilog=EPILOG, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
+    main(**vars(parser.parse_args()))
