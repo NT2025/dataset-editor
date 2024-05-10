@@ -87,31 +87,17 @@ def add_mkdir(subparsers:_SubParsersAction):
 
 
 def add_extract_latest(subparsers:_SubParsersAction):
-    description='''
-    <概要>
-    データセット群からxmlファイルを一つのディレクトリにコピーしてまとめる
-    '''
-    epilog='''
-    <詳細説明>-----------------------------------------------
-    以下のようなディレクトリ構造を持つデータセット群を対象に最新のxmlファイルを一つのディレクトリにまとめる。
-    [datasets/dataset_xxxxx_xxxxx/anns/all].
-    コピー先はout_dirで指定されたディレクトリ上にannsというディレクトリを作成してソコにコピーを行う。
-    同名のファイルは上書きされる。
-    '''
+    from dataset_editor import extract_latest
     parser:ArgumentParser = subparsers.add_parser(
-        "ext_latest", description=description, epilog=epilog)
-    parser.add_argument("datasets", type=str)
-    parser.add_argument("out_dir", type=str)
+        "ext_latest",
+        help=extract_latest.__doc__,
+        description=extract_latest.__doc__,
+    )
+    parser = extract_latest.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH] 
-        command += ["extract_latest.py"]
-        command += [os.path.abspath(_args.datasets)]
-        command += [os.path.abspath(_args.out_dir)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
-    
+    def call(*args, **kwargs):
+        extract_latest.main(**kwargs)
+
     parser.set_defaults(handler=call)
 
 
