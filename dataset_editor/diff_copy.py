@@ -1,13 +1,14 @@
 """ ２つのディレクトリの差分を求めてコピーする
 """
+from __future__ import annotations
 from typing import List
 from pathlib import Path
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter
 import shutil
 
 import tqdm
 
-def add_argument(parser:ArgumentParser) -> ArgumentParser:
+def add_arguments(parser:ArgumentParser) -> ArgumentParser:
     parser.add_argument("dir1", type=str, help="dir1")
     parser.add_argument("dir2", type=str, help="dir2")
     parser.add_argument("mode", type=str, choices=["d1", "d2", "both"],
@@ -58,6 +59,6 @@ def extract_files(file_paths:List[Path], out_root_dir:Path):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description=__doc__, formatter_class=RawDescriptionHelpFormatter)
-    parser = add_argument(parser)
+    parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
+    parser = add_arguments(parser)
     main(**vars(parser.parse_args()))

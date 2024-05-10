@@ -162,26 +162,16 @@ def add_group(subparsers:_SubParsersAction):
 
 
 def add_diff_copy(subparsers:_SubParsersAction):
-    description = "２つのディレクトリの差分を求めてコピーする"
+    from dataset_editor import diff_copy
     parser:ArgumentParser = subparsers.add_parser(
-        "diff_copy", description=description, help=description
+        "diff_copy",
+        help=diff_copy.__doc__,
+        description=diff_copy.__doc__
     )
-    parser.add_argument("dir1", type=str, help="dir1")
-    parser.add_argument("dir2", type=str, help="dir2")
-    parser.add_argument("mode", type=str, choices=["d1", "d2", "both"],
-                        help="copy mode. d1 is dir1 only. d2 is dir2 only. both is both.")
-    parser.add_argument("outdir", type=str, help="outdir")
+    parser = diff_copy.add_arguments(parser)
 
-    def call(*args):
-        _args = args[0]
-        command = []
-        command += [PYTHON_PATH]
-        command += ["diff_copy.py"]
-        command += [os.path.abspath(_args.dir1)]
-        command += [os.path.abspath(_args.dir2)]
-        command += [_args.mode]
-        command += [os.path.abspath(_args.outdir)]
-        subprocess.run(command, cwd=f"{FILE_DIR}")
+    def call(*args, **kwargs):
+        diff_copy.main(**kwargs)
 
     parser.set_defaults(handler=call)
 
