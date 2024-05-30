@@ -29,10 +29,10 @@ def add_arguments(parser: ArgumentParser):
     return parser
 
 
-def main(args):
-    imgdir = Path(args['imgdir']).absolute()
+def main(*args , **kwargs):
+    imgdir = Path(kwargs['imgdir']).absolute()
     check_input_path(imgdir)
-    rename_info_file = Path(args['json']).absolute()
+    rename_info_file = Path(kwargs['json']).absolute()
     check_input_path(rename_info_file)
     
     save_dir = imgdir.parent / Path("org_imgs")
