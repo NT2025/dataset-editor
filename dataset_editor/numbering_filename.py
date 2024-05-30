@@ -38,23 +38,23 @@ def add_arguments(parser: ArgumentParser):
     return parser
 
 
-def main(args):
+def main(*args, **kwargs):
 
     # check_src_dir
-    src_dir = Path(args['img_dir']).absolute()
+    src_dir = Path(kwargs['img_dir']).absolute()
     assert src_dir.is_dir()
 
     # check out dir
-    out_dir = Path(f"{args['out_dir']}").absolute()
+    out_dir = Path(f"{kwargs['out_dir']}").absolute()
     if not out_dir.exists():
         assert out_dir.parent.exists()
         out_dir.mkdir()
-    out_imgs_dir = Path(f"{args['out_dir']}/numberings").absolute()
+    out_imgs_dir = Path(f"{kwargs['out_dir']}/numberings").absolute()
     if not out_imgs_dir.exists():
         out_imgs_dir.mkdir()
 
     # mode
-    mode = args['mode']
+    mode = kwargs['mode']
     print(f"save mode is {mode}")
     if mode == "absolute":
         save_func = link_as_absolute
@@ -72,11 +72,11 @@ def main(args):
     img_paths.sort()
 
     # shuffle
-    if args['shuffle']:
+    if kwargs['shuffle']:
         random.shuffle(img_paths)
 
     # numbering
-    filename_prefix = f"{args['prefix']}" if f"{args['prefix']}" == "" else f"{args['prefix']}_"
+    filename_prefix = f"{kwargs['prefix']}" if f"{kwargs['prefix']}" == "" else f"{kwargs['prefix']}_"
     out_name2img_name = {}
     for num, img_path in enumerate(tqdm.tqdm(img_paths)):
         out_name = f"{num+1:>05}{img_path.suffix}"
