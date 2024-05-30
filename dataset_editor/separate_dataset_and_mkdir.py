@@ -35,20 +35,20 @@ def add_arguments(parser: ArgumentParser):
     return parser
 
 
-def main(args):
+def main(*args , **kwargs):
     pass
 
-    file_dir = Path(args['file_dir']).absolute()
-    out_dir = Path(args['output']).absolute()
+    file_dir = Path(kwargs['file_dir']).absolute()
+    out_dir = Path(kwargs['output']).absolute()
     check_path(file_dir)
-    check_nn(args['devide_number'])
+    check_nn(kwargs['devide_number'])
     check_path(out_dir.parent)
 
     # get file names and sort
     files = get_file_names(file_dir)
 
     # devide file with number into group
-    file_groups, file_infos = devide_files(files, args['devide_number'])
+    file_groups, file_infos = devide_files(files, kwargs['devide_number'])
 
     # mkdir group
     mkdir_groups(file_infos, out_dir)
