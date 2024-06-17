@@ -30,6 +30,7 @@ def add_arguments(parser: ArgumentParser):
     add_diff_copy(subparsers)
     add_for_rsync(subparsers)
     add_move_into(subparsers)
+    break_nest(subparsers)
 
     return parser
 
@@ -204,6 +205,22 @@ def add_move_into(subparsers:_SubParsersAction):
         move_into.main(**kwargs)
 
     parser.set_defaults(handler=call)
+
+
+def break_nest(subparsers:_SubParsersAction):
+    from dataset_editor import break_nest
+    parser:ArgumentParser = subparsers.add_parser(
+        "break_nest",
+        help=break_nest.__doc__,
+        description=break_nest.__doc__,
+    )
+    parser = break_nest.add_arguments(parser)
+
+    def call(*args, **kwargs):
+        break_nest.main(**kwargs)
+
+    parser.set_defaults(handler=call)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
