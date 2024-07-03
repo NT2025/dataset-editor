@@ -31,6 +31,7 @@ def add_arguments(parser: ArgumentParser):
     add_for_rsync(subparsers)
     add_move_into(subparsers)
     break_nest(subparsers)
+    delete(subparsers)
 
     return parser
 
@@ -218,6 +219,21 @@ def break_nest(subparsers:_SubParsersAction):
 
     def call(*args, **kwargs):
         break_nest.main(**kwargs)
+
+    parser.set_defaults(handler=call)
+
+
+def delete(subparsers:_SubParsersAction):
+    from dataset_editor import delete
+    parser:ArgumentParser = subparsers.add_parser(
+        "delete",
+        help=delete.__doc__,
+        description=delete.__doc__,
+    )
+    parser = delete.add_arguments(parser)
+
+    def call(*args, **kwargs):
+        delete.main(**kwargs)
 
     parser.set_defaults(handler=call)
 
