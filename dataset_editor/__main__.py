@@ -32,6 +32,7 @@ def add_arguments(parser: ArgumentParser):
     add_move_into(subparsers)
     break_nest(subparsers)
     delete(subparsers)
+    add_intersection(subparsers)
 
     return parser
 
@@ -237,6 +238,20 @@ def delete(subparsers:_SubParsersAction):
 
     parser.set_defaults(handler=call)
 
+
+def add_intersection(subparsers:_SubParsersAction):
+    from dataset_editor import intersection
+    parser:ArgumentParser = subparsers.add_parser(
+        "intersection",
+        help=intersection.__doc__,
+        description=intersection.__doc__,
+    )
+    parser = intersection.add_arguments(parser)
+
+    def call(*args, **kwargs):
+        intersection.main(**kwargs)
+
+    parser.set_defaults(handler=call)
 
 if __name__ == "__main__":
     parser = ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
