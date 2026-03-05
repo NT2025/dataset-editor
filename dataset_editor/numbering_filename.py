@@ -34,6 +34,8 @@ def add_arguments(parser: ArgumentParser):
     parser.add_argument("-p", "--prefix", type=str, default="", 
                         help="add prefix for filename. Example is [prefix]_00001.jpg. default is ''")
     parser.add_argument("-s", "--shuffle", action="store_true", help="shuffle flag. default is False")
+    parser.add_argument("-b", "--begin_num", type=int, default=1,
+        help="begin number. Default is 0")
 
     return parser
 
@@ -76,10 +78,12 @@ def main(*args, **kwargs):
         random.shuffle(img_paths)
 
     # numbering
+    begin_num: int = kwargs['begin_num']
     filename_prefix = f"{kwargs['prefix']}" if f"{kwargs['prefix']}" == "" else f"{kwargs['prefix']}_"
     out_name2img_name = {}
-    for num, img_path in enumerate(tqdm.tqdm(img_paths)):
-        out_name = f"{num+1:>05}{img_path.suffix}"
+    for n, img_path in enumerate(tqdm.tqdm(img_paths)):
+        number = begin_num + n
+        out_name = f"{number:>05}{img_path.suffix}"
         out_file = Path(f"{out_imgs_dir}/{filename_prefix}{out_name}")
 
         save_func(img_path, out_file)
