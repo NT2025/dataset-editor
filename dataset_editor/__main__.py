@@ -33,6 +33,7 @@ def add_arguments(parser: ArgumentParser):
     break_nest(subparsers)
     delete(subparsers)
     add_intersection(subparsers)
+    add_make_img_dataset(subparsers)
 
     return parser
 
@@ -252,6 +253,22 @@ def add_intersection(subparsers:_SubParsersAction):
         intersection.main(**kwargs)
 
     parser.set_defaults(handler=call)
+
+
+def add_make_img_dataset(subparsers:_SubParsersAction):
+    from dataset_editor import make_img_dataset
+    parser:ArgumentParser = subparsers.add_parser(
+        "mid",
+        help=make_img_dataset.__doc__,
+        description=make_img_dataset.__doc__,
+    )
+    parser = make_img_dataset.add_arguments(parser)
+
+    def call(*args, **kwargs):
+        make_img_dataset.main(**kwargs)
+
+    parser.set_defaults(handler=call)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser(description=DESCRIPTION, formatter_class=RawTextHelpFormatter)
