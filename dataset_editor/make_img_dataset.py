@@ -175,13 +175,15 @@ def convert_group_order(group2paths: Dict[str, List[Path]]):
 
 
 def make_name2new_name(ext_group2paths: Dict[str, List[Path]], prefix: str):
+    if prefix != "":
+        prefix += "_"
     name2new_name: Dict[str, str] = {}
     ext_group_names: List[str] = list(ext_group2paths.keys())
     ext_group_names.sort()
     for n in ext_group_names:
         number = 1
         for p in ext_group2paths[n]:
-            new_name = f"{prefix}_{n}_{number:04}{p.suffix}"
+            new_name = f"{prefix}{n}_{number:04}{p.suffix}"
             name2new_name[p.name] = new_name
             number += 1
     return name2new_name
