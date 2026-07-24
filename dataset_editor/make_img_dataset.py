@@ -230,7 +230,7 @@ def get_optimal_group_order(N: int) -> List[int]:
         # ビット反転により [0, 1) の範囲で最も離れた点を生成
         reversed_bits = int(f"{i:0{bit_len}b}"[::-1], 2)
         # N個のグループの中にスケールさせる
-        group_idx = int(reversed_bits * N / max_val)
+        group_idx = int(reversed_bits * N / max_val) + 1
 
         if group_idx not in seen:
             seen.add(group_idx)
