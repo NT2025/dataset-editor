@@ -102,6 +102,9 @@ def grouping(img_paths: List[Path], num_ann: int):
     stride_num: int = math.ceil(num_img_paths/num_ann)
     ext_group2paths: Dict[str, List[Path]] = regroup_by_stride(img_group2paths, stride_num)
 
+    ## グループをコルプト数列を用いて優先度が高い順に並べ替え
+    ext_group2paths = convert_group_order(ext_group2paths)
+
     ### 確認用
     logging.info("group番号:画像数")
     sum_v = 0
@@ -146,21 +149,41 @@ def regroup_by_stride(img_group2paths:Dict[str, List[Path]], stride_num: int):
         id2paths: Dict[int ,List[Path]] = devide.step_devide(paths, stride_num)
         ### ストライド毎に名前をグループ名を決めて追加していく
         for i in range(stride_num):
-            group_name: str = f"group-{i:03}"
+            group_name: str = f"group-{i+1:03}"
             if group_name not in ext_group2paths.keys():
                 ext_group2paths[group_name] = []
             ext_group2paths[group_name] += id2paths[i]
     return ext_group2paths
 
 
+def convert_group_order(group2paths: Dict[str, List[Path]]):
+    """ グループの順番を後述する価値が高い順に並べ直す。
+    価値とは、グループ内に含まれる画像が他のグループの画像と似ていないことを表す概念とする。  
+    """
+    dst_group2paths: Dict[str, List[Path]] = {}
+    group_names: List[str] = list(group2paths.keys())
+    group_names.sort()
+    index_order: List[int] = [i-1 for i in get_optimal_group_order(len(group_names))]
+    for i, idx in enumerate(index_order, 1):
+        name = group_names[idx]
+        num_str = name.split("-")[1]
+        padding_num = len(num_str)
+        new_name = f"group-{i:0{padding_num}}"
+        dst_group2paths[new_name] = group2paths[name]
+
+    return dst_group2paths
+
+
 def make_name2new_name(ext_group2paths: Dict[str, List[Path]], prefix: str):
+    if prefix != "":
+        prefix += "_"
     name2new_name: Dict[str, str] = {}
     ext_group_names: List[str] = list(ext_group2paths.keys())
     ext_group_names.sort()
     for n in ext_group_names:
         number = 1
         for p in ext_group2paths[n]:
-            new_name = f"{prefix}_{n}_{number:04}{p.suffix}"
+            new_name = f"{prefix}{n}_{number:04}{p.suffix}"
             name2new_name[p.name] = new_name
             number += 1
     return name2new_name
@@ -188,6 +211,32 @@ class Copyer:
     def copy_with_rename(self, src_path: Path, dst_name: str):
         dst_path = self.tgt_dir.joinpath(f"{dst_name}")
         shutil.copy(src_path, dst_path)
+
+
+def get_optimal_group_order(N: int) -> List[int]:
+    """グループ数 N に対する最適な選択順序（1-indexed）を返す.
+    コルプト数列（1からNまでの区間で一様に数字を選択する.
+    # 例: グループ数 15 の場合.
+    print(get_optimal_group_order(15)).
+    # 出力: [1, 9, 5, 13, 3, 11, 7, 15, 2, 10, 6, 14, 4, 12, 8].
+    """
+    order = []
+    # 2の累乗でNをカバーできるサイズを探す
+    bit_len = (N - 1).bit_length()
+    max_val = 1 << bit_len
+
+    seen = set()
+    for i in range(max_val):
+        # ビット反転により [0, 1) の範囲で最も離れた点を生成
+        reversed_bits = int(f"{i:0{bit_len}b}"[::-1], 2)
+        # N個のグループの中にスケールさせる
+        group_idx = int(reversed_bits * N / max_val)
+
+        if group_idx not in seen:
+            seen.add(group_idx)
+            order.append(group_idx)
+
+    return order
 
 
 if __name__ == '__main__':
