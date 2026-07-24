@@ -149,7 +149,7 @@ def regroup_by_stride(img_group2paths:Dict[str, List[Path]], stride_num: int):
         id2paths: Dict[int ,List[Path]] = devide.step_devide(paths, stride_num)
         ### ストライド毎に名前をグループ名を決めて追加していく
         for i in range(stride_num):
-            group_name: str = f"group-{i:03}"
+            group_name: str = f"group-{i+1:03}"
             if group_name not in ext_group2paths.keys():
                 ext_group2paths[group_name] = []
             ext_group2paths[group_name] += id2paths[i]
@@ -164,7 +164,7 @@ def convert_group_order(group2paths: Dict[str, List[Path]]):
     group_names: List[str] = list(group2paths.keys())
     group_names.sort()
     index_order: List[int] = [i-1 for i in get_optimal_group_order(len(group_names))]
-    for i, idx in enumerate(index_order, 0):
+    for i, idx in enumerate(index_order, 1):
         name = group_names[idx]
         num_str = name.split("-")[1]
         padding_num = len(num_str)
